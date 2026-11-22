@@ -912,6 +912,19 @@
 
         <tr>
             <td class="indent2">
+                <label><class id="PostProcessing_HoldLastValidValue_text" style="color:black;">Hold Last Valid Value on Error</class></label>
+            </td>
+            <td>
+                <select id="PostProcessing_HoldLastValidValue_value1">
+                    <option value="true" selected>enabled (true)</option>
+                    <option value="false">disabled (false)</option>
+                </select>
+            </td>
+            <td>$TOOLTIP_PostProcessing_NUMBER.HoldLastValidValue</td>
+        </tr>
+
+        <tr>
+            <td class="indent2">
                 <input type="checkbox" id="PostProcessing_DecimalShift_enabled" value="1"  onclick = 'InvertEnableItem("PostProcessing", "DecimalShift")' unchecked >
                 <label for=PostProcessing_DecimalShift_enabled><class id="PostProcessing_DecimalShift_text" style="color:black;">Decimal Shift</class></label>
             </td>
@@ -2270,6 +2283,7 @@ function UpdateInputIndividual(sel) {
         ReadParameter(param, "PostProcessing", "IgnoreLeadingNaN", false, NUNBERSAkt);
         // ReadParameter(param, "PostProcessing", "IgnoreAllNaN", false, NUNBERSAkt);
         ReadParameter(param, "PostProcessing", "AllowNegativeRates", false, NUNBERSAkt);
+        ReadParameter(param, "PostProcessing", "HoldLastValidValue", false, NUNBERSAkt);
         ReadParameter(param, "PostProcessing", "CheckDigitIncreaseConsistency", false, NUNBERSAkt);
         ReadParameter(param, "InfluxDB", "Field", true, NUNBERSAkt);
         ReadParameter(param, "InfluxDBv2", "Field", true, NUNBERSAkt);
@@ -2291,6 +2305,7 @@ function UpdateInputIndividual(sel) {
     WriteParameter(param, category, "PostProcessing", "IgnoreLeadingNaN", false, NUNBERSAkt);
     // WriteParameter(param, category, "PostProcessing", "IgnoreAllNaN", false, NUNBERSAkt);
     WriteParameter(param, category, "PostProcessing", "AllowNegativeRates", false, NUNBERSAkt);
+    WriteParameter(param, category, "PostProcessing", "HoldLastValidValue", false, NUNBERSAkt);
     WriteParameter(param, category, "PostProcessing", "CheckDigitIncreaseConsistency", false, NUNBERSAkt);
     WriteParameter(param, category, "InfluxDB", "Field", true, NUNBERSAkt);
     WriteParameter(param, category, "InfluxDBv2", "Field", true, NUNBERSAkt);

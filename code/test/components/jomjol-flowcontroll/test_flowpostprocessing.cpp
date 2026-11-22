@@ -580,6 +580,40 @@ void test_doFlowPP_ContinuousLastDigit() {
         delete undertestPost;
 }
 
+void test_holdLastValidValueUntilReadingIsStable() {
+        std::vector<float> digits = { 8.4, 7.8, 5.9, 6.1 };
+        UnderTestPost* undertestPost = init_do_flow({}, digits, Digit100);
+        std::vector<NumberPost*>* numbers = undertestPost->GetNumbers();
+        NumberPost* number = (*numbers)[0];
+
+        undertestPost->PreValueUse = true;
+        number->PreValue = 999;
+        number->PreValueOkay = true;
+        number->useMaxRateValue = true;
+        number->MaxRateValue = 10;
+        TEST_ASSERT_TRUE(number->HoldLastValidValue);
+
+        std::string result = process_doFlow(undertestPost);
+        TEST_ASSERT_EQUAL_STRING("999", result.c_str());
+        TEST_ASSERT_EQUAL_FLOAT(999, number->PreValue);
+        TEST_ASSERT_TRUE(undertestPost->getReadoutError().find("Rate too high") != std::string::npos);
+
+        (*undertestPost->flowDigit->GetGENERAL(0)->ROI[3]).result_float = -1;
+        result = process_doFlow(undertestPost);
+        TEST_ASSERT_EQUAL_STRING("999", result.c_str());
+        TEST_ASSERT_EQUAL_FLOAT(999, number->PreValue);
+        TEST_ASSERT_EQUAL_STRING("Invalid reading - holding last valid value", undertestPost->getReadoutError().c_str());
+
+        for (size_t i = 0; i < digits.size(); ++i) {
+            (*undertestPost->flowDigit->GetGENERAL(0)->ROI[i]).result_float = i == 0 ? 1.0 : 0.0;
+        }
+
+        result = process_doFlow(undertestPost);
+        TEST_ASSERT_EQUAL_STRING("1000", result.c_str());
+        TEST_ASSERT_EQUAL_FLOAT(1000, number->PreValue);
+        delete undertestPost;
+}
+
 void test_doFlowPP4() {
 
         // Fehler  V13.0.4 
@@ -599,5 +633,3 @@ void test_doFlowPP4() {
         TEST_ASSERT_EQUAL_STRING(expected_extended, result.c_str());
 
 }
-
-

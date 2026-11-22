@@ -117,6 +117,13 @@ void setPreValue(UnderTestPost* _underTestPost, double _preValue) {
     }
 }
 
+void setHoldLastValidValue(UnderTestPost* _underTestPost, bool _holdLastValidValue) {
+        std::vector<NumberPost*>* NUMBERS = _underTestPost->GetNumbers();
+        for (int _n = 0; _n < (*NUMBERS).size(); ++_n) {
+            (*NUMBERS)[_n]->HoldLastValidValue = _holdLastValidValue;
+        }
+}
+
 void setAllowNegatives(UnderTestPost* _underTestPost, bool _allowNegatives) {
         ESP_LOGD(TAG, "checkConsistency=true");
         std::vector<NumberPost*>* NUMBERS = _underTestPost->GetNumbers();    

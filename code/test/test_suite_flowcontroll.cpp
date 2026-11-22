@@ -142,6 +142,8 @@ void task_UnityTesting(void *pvParameter)
         printf("---------------------------------------------------------------------------\n");
         RUN_TEST(test_doFlowPP_ContinuousLastDigit);
         printf("---------------------------------------------------------------------------\n");
+        RUN_TEST(test_holdLastValidValueUntilReadingIsStable);
+        printf("---------------------------------------------------------------------------\n");
         RUN_TEST(test_doFlowPP4);
     UNITY_END();
 
@@ -168,6 +170,7 @@ extern "C" void app_main()
     RUN_TEST(test_doFlowPP1);
     RUN_TEST(test_doFlowPP2);
     RUN_TEST(test_doFlowPP3);
+    RUN_TEST(test_holdLastValidValueUntilReadingIsStable);
     RUN_TEST(test_doFlowPP4);
 
     // getReadoutRawString test

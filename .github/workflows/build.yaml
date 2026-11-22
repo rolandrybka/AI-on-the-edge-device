@@ -5,6 +5,7 @@ on:
     pull_request:
     release:
         types: [released] # Only trigger on published releases (not drafts or pre-released)
+    workflow_dispatch:
 
 jobs:
 #########################################################################################

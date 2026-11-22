@@ -43,6 +43,7 @@ protected:
     void handleMaxRateType(string _decsep, string _value);
     void handleAnalogToDigitTransitionStart(string _decsep, string _value);
     void handleAllowNegativeRate(string _decsep, string _value);
+    void handleHoldLastValidValue(string _decsep, string _value);
     void handleIgnoreLeadingNaN(string _decsep, string _value);
     void handleContinuousLastDigit(string _decsep, string _value);
     void handleChangeRateThreshold(string _decsep, string _value);

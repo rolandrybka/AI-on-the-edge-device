@@ -33,6 +33,7 @@ void testNegative() {
         // Aber der PreValue wird gesetzt
         underTestPost = init_do_flow(analogs, digits, Digit100, false, true, 0);
         setAllowNegatives(underTestPost, false);
+        setHoldLastValidValue(underTestPost, false);
         setPreValue(underTestPost, preValue_extended);
         result = process_doFlow(underTestPost);
         TEST_ASSERT_EQUAL_STRING("no error", underTestPost->getReadoutError().c_str());
@@ -55,6 +56,7 @@ void testNegative() {
         preValue = 17.00; // zu groß
         underTestPost = init_do_flow(analogs, digits, Digit100, false, false, 0);
         setAllowNegatives(underTestPost, false);
+        setHoldLastValidValue(underTestPost, false);
         setPreValue(underTestPost, preValue);
         result = process_doFlow(underTestPost);
         TEST_ASSERT_EQUAL_STRING("Neg. Rate - Read:  - Raw: 16.98 - Pre: 17.00 ", underTestPost->getReadoutError().c_str());
@@ -107,6 +109,7 @@ void testNegative_Issues() {
         preValue = 22018.09; // zu groß
         UnderTestPost* underTestPost = init_do_flow(analogs, digits, Digit100, false, false, -2);
         setAllowNegatives(underTestPost, false);
+        setHoldLastValidValue(underTestPost, false);
         setPreValue(underTestPost, preValue_extended);
         std::string result = process_doFlow(underTestPost);
         TEST_ASSERT_EQUAL_STRING("Neg. Rate - Read:  - Raw: 22017.98 - Pre: 22018.09 ", underTestPost->getReadoutError().c_str());

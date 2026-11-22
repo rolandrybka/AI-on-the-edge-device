@@ -82,6 +82,14 @@ void setConsitencyCheck(UnderTestPost* _UnderTestPost, bool _checkConsistency);
 void setPreValue(UnderTestPost* _UnderTestPost, double _preValue);
 
 /**
+ * @brief Set the HoldLastValidValue option on testobject
+ *
+ * @param _UnderTestPost the testobject
+ * @param _holdLastValidValue true/false
+ */
+void setHoldLastValidValue(UnderTestPost* _UnderTestPost, bool _holdLastValidValue);
+
+/**
  * @brief Set the Extended Resolution on undertest
  * 
  * @param _UnderTestPost the testobject

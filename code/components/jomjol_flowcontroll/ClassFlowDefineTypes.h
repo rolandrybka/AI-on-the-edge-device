@@ -43,6 +43,7 @@ struct NumberPost {
     bool ErrorMessage;          // FIXME: not used; can be removed
     int ChangeRateThreshold;  // threshold parameter for negative rate detection
     bool PreValueOkay;          // previousValueValid; indicates that the reading of the previous round has no errors
+    bool HoldLastValidValue;    // holdLastValidValue; return the last valid value when a reading is rejected
     bool AllowNegativeRates;    // allowNegativeRate; defines if the consistency checks allow negative rates between consecutive meter readings.
     bool IgnoreLeadingNaN;
     bool checkDigitIncreaseConsistency; // extendedConsistencyCheck; performs an additional consistency check to avoid wrong readings

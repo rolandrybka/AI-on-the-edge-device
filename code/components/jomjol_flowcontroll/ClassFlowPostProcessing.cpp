@@ -432,6 +432,24 @@ void ClassFlowPostProcessing::handleAllowNegativeRate(string _decsep, string _va
     }
 }
 
+void ClassFlowPostProcessing::handleHoldLastValidValue(string _decsep, string _value) {
+    string _digit;
+    int _pospunkt = _decsep.find_first_of(".");
+
+    if (_pospunkt > -1) {
+        _digit = _decsep.substr(0, _pospunkt);
+    }
+    else {
+        _digit = "default";
+    }
+
+    for (int j = 0; j < NUMBERS.size(); ++j) {
+        if ((_digit == "default") || (NUMBERS[j]->name == _digit)) {
+            NUMBERS[j]->HoldLastValidValue = alphanumericToBoolean(_value);
+        }
+    }
+}
+
 void ClassFlowPostProcessing::handleIgnoreLeadingNaN(string _decsep, string _value) {
     string _digit, _decpos;
     int _pospunkt = _decsep.find_first_of(".");
@@ -622,6 +640,10 @@ bool ClassFlowPostProcessing::ReadParameter(FILE* pfile, string& aktparamgraph) 
         if ((toUpper(_param) == "PREVALUEUSE") && (splitted.size() > 1)) {
             PreValueUse = alphanumericToBoolean(splitted[1]);
         }
+
+        if ((toUpper(_param) == "HOLDLASTVALIDVALUE") && (splitted.size() > 1)) {
+            handleHoldLastValidValue(splitted[0], splitted[1]);
+        }
 		
         if ((toUpper(_param) == "CHANGERATETHRESHOLD") && (splitted.size() > 1)) {
             handleChangeRateThreshold(splitted[0], splitted[1]);
@@ -711,6 +733,7 @@ void ClassFlowPostProcessing::InitNUMBERS() {
 
         _number->FlowRateAct = 0; // m3 / min
         _number->PreValueOkay = false;
+        _number->HoldLastValidValue = true;
         _number->AllowNegativeRates = false;
         _number->IgnoreLeadingNaN = false;
         _number->MaxRateValue = 0.1;
@@ -871,13 +894,26 @@ bool ClassFlowPostProcessing::doFlow(string zwtime) {
         NUMBERS[j]->ReturnValue = NUMBERS[j]->ReturnRawValue;
 
         if (findDelimiterPos(NUMBERS[j]->ReturnValue, "N") != std::string::npos) {
+            if (NUMBERS[j]->HoldLastValidValue && NUMBERS[j]->PreValueOkay) {
+                NUMBERS[j]->Value = NUMBERS[j]->PreValue;
+                NUMBERS[j]->ReturnValue = RundeOutput(NUMBERS[j]->PreValue, NUMBERS[j]->Nachkomma);
+                NUMBERS[j]->ReturnPreValue = NUMBERS[j]->ReturnValue;
+                NUMBERS[j]->ErrorMessageText = "Invalid reading - holding last valid value";
+                NUMBERS[j]->timeStampLastValue = imagetime;
+
+                string _zw = NUMBERS[j]->name + ": Raw: " + NUMBERS[j]->ReturnRawValue + ", Value: " + NUMBERS[j]->ReturnValue + ", Status: " + NUMBERS[j]->ErrorMessageText;
+                LogFile.WriteToFile(ESP_LOG_INFO, TAG, _zw);
+                WriteDataLog(j);
+                continue;
+            }
+
             if (PreValueUse && NUMBERS[j]->PreValueOkay) {
                 NUMBERS[j]->ReturnValue = ErsetzteN(NUMBERS[j]->ReturnValue, NUMBERS[j]->PreValue); 
             }
             else {
+                NUMBERS[j]->ReturnValue = "";
                 string _zw = NUMBERS[j]->name + ": Raw: " + NUMBERS[j]->ReturnRawValue + ", Value: " + NUMBERS[j]->ReturnValue + ", Status: " + NUMBERS[j]->ErrorMessageText;
                 LogFile.WriteToFile(ESP_LOG_INFO, TAG, _zw);
-                NUMBERS[j]->ReturnValue = "";
                 NUMBERS[j]->timeStampLastValue = imagetime;
                 WriteDataLog(j);
                 continue; // there is no number because there is still an N.
@@ -945,7 +981,12 @@ bool ClassFlowPostProcessing::doFlow(string zwtime) {
 
                     NUMBERS[j]->ErrorMessageText = NUMBERS[j]->ErrorMessageText + "Neg. Rate - Read: " + zwvalue + " - Raw: " + NUMBERS[j]->ReturnRawValue + " - Pre: " + RundeOutput(NUMBERS[j]->PreValue, NUMBERS[j]->Nachkomma) + " "; 
                     NUMBERS[j]->Value = NUMBERS[j]->PreValue;
-                    NUMBERS[j]->ReturnValue = "";
+                    NUMBERS[j]->ReturnValue = NUMBERS[j]->HoldLastValidValue
+                        ? RundeOutput(NUMBERS[j]->PreValue, NUMBERS[j]->Nachkomma)
+                        : "";
+                    if (NUMBERS[j]->HoldLastValidValue) {
+                        NUMBERS[j]->ReturnPreValue = NUMBERS[j]->ReturnValue;
+                    }
                     NUMBERS[j]->timeStampLastValue = imagetime;
 
                     string _zw = NUMBERS[j]->name + ": Raw: " + NUMBERS[j]->ReturnRawValue + ", Value: " + NUMBERS[j]->ReturnValue + ", Status: " + NUMBERS[j]->ErrorMessageText;
@@ -981,7 +1022,12 @@ bool ClassFlowPostProcessing::doFlow(string zwtime) {
                 if (abs(_ratedifference) > abs(NUMBERS[j]->MaxRateValue)) {
                     NUMBERS[j]->ErrorMessageText = NUMBERS[j]->ErrorMessageText + "Rate too high - Read: " + RundeOutput(NUMBERS[j]->Value, NUMBERS[j]->Nachkomma) + " - Pre: " + RundeOutput(NUMBERS[j]->PreValue, NUMBERS[j]->Nachkomma) + " - Rate: " + RundeOutput(_ratedifference, NUMBERS[j]->Nachkomma);
                     NUMBERS[j]->Value = NUMBERS[j]->PreValue;
-                    NUMBERS[j]->ReturnValue = "";
+                    NUMBERS[j]->ReturnValue = NUMBERS[j]->HoldLastValidValue
+                        ? RundeOutput(NUMBERS[j]->PreValue, NUMBERS[j]->Nachkomma)
+                        : "";
+                    if (NUMBERS[j]->HoldLastValidValue) {
+                        NUMBERS[j]->ReturnPreValue = NUMBERS[j]->ReturnValue;
+                    }
                     NUMBERS[j]->ReturnRateValue = "";
                     NUMBERS[j]->timeStampLastValue = imagetime;
 
